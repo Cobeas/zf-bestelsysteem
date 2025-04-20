@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum error_type {
+  SYSTEM
+  USER
+  AUTH
+  DATABASE
+  NETWORK
+}
+
+enum bar_type {
+  BAR
+  KITCHEN
+}
+
+enum order_status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum product_type {
+  FOOD
+  DRINK
+}
+
+model bar {
+  id         Int      @id @default(autoincrement())
+  system_id  Int
+  bar_number Int
+  bar_name   String
+  bar_type   bar_type
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  bar_table_relation bar_table_relation[]
+  order              order[]
+  system             system_settings      @relation(fields: [system_id], references: [id], onDelete: Cascade)
+
+  @@unique([system_id, bar_number, bar_type])
+}
+
+model table {
+  id           Int @id @default(autoincrement())
+  system_id    Int
+  table_number Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  bar_table_relation bar_table_relation[]
+  order              order[]
+  system             system_settings      @relation(fields: [system_id], references: [id], onDelete: Cascade)
+
+  @@unique([system_id, table_number])
+}
+
+model bar_table_relation {
+  id        Int @id @default(autoincrement())
+  bar_id    Int
+  table_id  Int
+  system_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  bar    bar             @relation(fields: [bar_id], references: [id], onDelete: Cascade)
+  table  table           @relation(fields: [table_id], references: [id], onDelete: Cascade)
+  system system_settings @relation(fields: [system_id], references: [id], onDelete: Cascade)
+
+  @@unique([system_id, bar_id, table_id])
+}
+
+model order {
+  id          Int          @id @default(autoincrement())
+  system_id   Int
+  table_id    Int
+  bar_id      Int
+  status      order_status @default(PENDING)
+  drinks      Json?
+  foods       Json?
+  total_price Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  bar   bar   @relation(fields: [bar_id], references: [id], onDelete: Cascade)
+  table table @relation(fields: [table_id], references: [id], onDelete: Cascade)
+}
+
+model product {
+  id            Int          @id @default(autoincrement())
+  system_id     Int
+  product_id    String       @unique
+  product_name  String
+  product_price Float
+  product_type  product_type
+  position      Int          @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  system system_settings @relation(fields: [system_id], references: [id], onDelete: Cascade)
+}
+
+model system_settings {
+  id             Int     @id @default(autoincrement())
+  name           String? @unique
+  user_password  String?
+  admin_password String
+  live           Boolean @default(false)
+
+  bar_table_relation bar_table_relation[]
+  bar                bar[]
+  table              table[]
+  product            product[]
+  error_logs         error_logs[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model error_logs {
+  id            Int        @id @default(autoincrement())
+  error_message String
+  error_stack   String?
+  error_time    DateTime   @default(now())
+  error_code    Int
+  error_type    error_type
+  system_id     Int
+
+  created_at DateTime @default(now())
+
+  system system_settings @relation(fields: [system_id], references: [id], onDelete: Cascade)
+}
