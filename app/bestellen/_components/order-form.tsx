@@ -13,6 +13,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Message } from "@/trpc/routers/messages";
 
 const formSchema = z.object({
     id: z.string(),
@@ -39,7 +40,6 @@ interface OrderData {
 
 function createEmptyOrder(data: OrderData) {
     const order: Record<string, string> = {};
-    console.log({ data });
     data.drinks.forEach((p: OrderData["drinks"][number]) => (order[p.product_id] = ""));
     data.foods.forEach((p: OrderData["foods"][number]) => (order[p.product_id] = ""));
 
@@ -61,6 +61,15 @@ export default OrderForm
 const OrderFormSuspense = () => {
     const [data] = trpc.getOrderProducts.useSuspenseQuery();
     const orderMutation = trpc.makeOrder.useMutation();
+    trpc.realtime.onMessage.useSubscription(undefined, {
+        onData: (data) => {
+            toast.info((data as unknown as Message[])[0].message, {
+                duration: 10000,
+                position: "top-center",
+                style: { fontSize: "1.25rem" },
+            })
+        }
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -72,13 +81,22 @@ const OrderFormSuspense = () => {
     });
 
     const sendOrder = (orderData: z.infer<typeof formSchema>) => {
+        const tables = data.tables?.map((table) => String(table.table_number));
+
+        if (!tables?.includes(orderData.table)) {
+            toast.error("Tafel bestaat niet of is niet beschikbaar", {
+                position: "top-center",
+            });
+            return;
+        }
         orderMutation.mutateAsync({
             ...orderData,
         }, {
             onSuccess: (info) => {
-                toast.success("Bestelling geplaatst", {
+                toast.success(`Bestelling geplaatst voor Tafel ${info.order.table}`, {
                     description: `${info.totalPrice} Munten`,
-                    duration: 50000,
+                    duration: 5000,
+                    position: "top-center",
                 });
                 form.reset({
                     id: String(data.id),
@@ -87,7 +105,14 @@ const OrderFormSuspense = () => {
                 });
             },
             onError: (error) => {
-                toast.error(error.message)
+                toast.error(error.message, {
+                    position: "top-center",
+                });
+                form.reset({
+                    id: String(data.id),
+                    table: "",
+                    order: createEmptyOrder(data as OrderData),
+                });
             }
         })
     };

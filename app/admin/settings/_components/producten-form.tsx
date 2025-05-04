@@ -183,7 +183,7 @@ const ProductenForm = () => {
     }
 
     return (
-        <div className='border border-neutral-600 rounded-lg p-4 min-h-full shadow-md md:col-span-2 lg:col-span-1'>
+        <div className='border border-neutral-600 rounded-lg p-4 min-h-full shadow-md col-span-1 md:col-span-2 lg:col-span-1'>
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold mb-4">Producten</h2>
                 <Button onClick={saveProducts} disabled={isPending}>

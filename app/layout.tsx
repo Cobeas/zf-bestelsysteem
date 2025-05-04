@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TRPCProvider } from "@/trpc/client";
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 
@@ -40,7 +39,6 @@ export default function RootLayout({
           <TRPCProvider>
             <Toaster richColors duration={5000} />
             <main className="flex flex-col items-center justify-start">
-              <Header />
               {children}
             </main>
           </TRPCProvider>

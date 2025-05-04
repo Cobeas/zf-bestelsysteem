@@ -252,7 +252,7 @@ const TafelIndeling: React.FC = () => {
                 toast.error(error.message);
             },
         })
-    }, [barTableSettings, bars, kitchens, tableCount, id, utils.getTableSettings, mutation]);
+    }, [barTableSettings, bars, kitchens, tableCount, id, mutation]);
 
     useEffect(() => {
         utils.getTableSettings.refetch({ id });
