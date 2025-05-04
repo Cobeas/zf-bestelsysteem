@@ -1,4 +1,4 @@
-import { baseProcedure, createTRPCRouter } from "../init";
+import { baseProcedure, createTRPCRouter, openProcedure } from "../init";
 import db from "@/lib/db";
 import { setSystemSettingsSchema } from "../schemas/system-schemas";
 import { hash, verify } from "argon2";
@@ -57,7 +57,7 @@ export const appRouter = createTRPCRouter({
             cookieStore.delete("zfadminsession");
             return { success: true };
         }),
-    login: baseProcedure
+    login: openProcedure
         .input(z.object({
             password: z.string(),
         }))
@@ -106,7 +106,7 @@ export const appRouter = createTRPCRouter({
                 return { success: false, isValidPassword };
             }
         }),
-    loginAdmin: baseProcedure
+    loginAdmin: openProcedure
         .input(z.object({
             password: z.string(),
         }))

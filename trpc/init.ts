@@ -33,6 +33,7 @@ const t = initTRPC.context<Context>().create({
 
 export const createTRPCRouter = t.router;
 export const createCallerFacotry = t.createCallerFactory;
+export const openProcedure = t.procedure;
 export const baseProcedure = t.procedure.use(async function isAuthenticated(opts) {
     const { ctx } = opts;
 
