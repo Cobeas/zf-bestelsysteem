@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { bar_type } from "@prisma/client";
-import { cn } from "@/lib/utils";
+import { cn, nanoidNumber } from "@/lib/utils";
 import { useSettingsStore } from "@/stores/settings-store";
 import { trpc } from "@/trpc/client";
 import { ChevronDownIcon, PlusIcon, Trash2Icon } from "lucide-react";
@@ -240,23 +240,29 @@ const TafelIndeling: React.FC = () => {
                 .map((s) => ({ table_id: s.table_id, bar_id: s.bar_id })),
         }
 
-        console.log(JSON.stringify(payload, null, 2));
+        // console.log(JSON.stringify(payload, null, 2));
 
         mutation.mutateAsync({
             ...payload,
         }, {
             onSuccess: () => {
                 toast.success("Tafel instellingen zijn succesvol opgeslagen.");
+                utils.getTableSettings.refetch({ id });
             },
             onError: (error) => {
                 toast.error(error.message);
+                utils.getTableSettings.refetch({ id });
             },
         })
-    }, [barTableSettings, bars, kitchens, tableCount, id, mutation]);
+    }, [barTableSettings, bars, kitchens, tableCount, id, mutation, utils]);
 
     useEffect(() => {
         utils.getTableSettings.refetch({ id });
     }, [id, utils.getTableSettings]);
+
+    useEffect(() => {
+        console.log({ barTableSettings, tableCount });
+    }, [barTableSettings, tableCount]);
 
     if (isPending) {
         return <TafelIndelingSkeleton />;
@@ -372,7 +378,7 @@ const TafelIndeling: React.FC = () => {
                                             for (let i = prev.length; i < value; i++) {
                                                 newSettings.push({
                                                     table: i + 1,
-                                                    table_id: null,
+                                                    table_id: Number(nanoidNumber()),
                                                     bar: 1,
                                                     bar_id: null,
                                                 });
@@ -419,7 +425,8 @@ const TafelIndeling: React.FC = () => {
                                                 value={bar.number}
                                                 checked={barTableSettings[table]?.bar === bar.number}
                                                 onChange={() => setTableBar(table, bar.number)}
-                                                className="cursor-pointer w-16"
+                                                className="cursor-pointer w-16 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                disabled={bar.id === null}
                                             />
                                         </label>
                                     ))}

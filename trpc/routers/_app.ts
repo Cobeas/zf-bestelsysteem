@@ -290,7 +290,7 @@ export const appRouter = createTRPCRouter({
         }))
         .mutation(async ({ input }) => {
             const { id: systemId, totalTables, bars, kitchens, settings } = input;
-            // console.log(JSON.stringify(input, null, 2));
+            console.log(JSON.stringify(input, null, 2));
             await db.$transaction(async (db) => {
                 // Combine bars and kitchens into one array
                 const allBars = [...bars, ...kitchens];
@@ -380,7 +380,10 @@ export const appRouter = createTRPCRouter({
                 for (const setting of settings) {
                     if (!setting.bar_id) continue;
 
-                    const tableId = setting.table_id ?? tableMap.get(settings.indexOf(setting) + 1);
+                    // const tableId = setting.table_id ?? tableMap.get(settings.indexOf(setting) + 1);
+                    const index = settings.indexOf(setting); // 0-based
+                    const tableNumber = index + 1;
+                    const tableId = tableMap.get(tableNumber);
                     if (!tableId) continue;
 
                     incomingRelationKeys.add(newRelationKey(tableId, setting.bar_id));

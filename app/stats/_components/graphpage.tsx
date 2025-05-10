@@ -44,11 +44,11 @@ export interface ChartDataProps {
 
 export const GraphPage = () => {
     return (
-        <ErrorBoundary fallback={<div>Er is iets fout gegaan...</div>}>
-            <Suspense fallback={<GraphPageSkeleton />}>
+        <Suspense fallback={<GraphPageSkeleton />}>
+            <ErrorBoundary fallback={<div>Er is iets fout gegaan...</div>}>
                 <GraphPageSuspense />
-            </Suspense>
-        </ErrorBoundary>
+            </ErrorBoundary>
+        </Suspense >
     )
 }
 
@@ -61,11 +61,7 @@ const GraphPageSuspense = () => {
         onData: () => {
             refetch();
         }
-    })
-
-    if (!initialData) {
-        return <GraphPageSkeleton />
-    }
+    });
 
     return (
         <div className="w-full max-w-screen-2xl h-full grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:px-8">

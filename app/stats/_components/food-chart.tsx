@@ -17,7 +17,11 @@ const colorPalette = [
     'var(--chart-5)',
 ];
 
-export const FoodChart = ({ data }: { data: ChartDataProps }) => {
+export const FoodChart = ({ data }: { data: ChartDataProps | undefined }) => {
+    if (!data) {
+        return null;
+    };
+
     const foods = data.orderedFoods
         .map((item, index) => ({
             name: item.name,
@@ -71,7 +75,7 @@ export const FoodChart = ({ data }: { data: ChartDataProps }) => {
                             <LabelList
                                 position="center"
                                 offset={0}
-                                className="fill-foreground"
+                                className="fill-white"
                                 fontSize={"1rem"}
                                 dataKey={"name"}
                                 angle={-45}

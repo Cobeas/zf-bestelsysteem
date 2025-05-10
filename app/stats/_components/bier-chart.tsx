@@ -27,7 +27,11 @@ const chartConfig = {
     }).map((item) => item).reduce((acc, item) => ({ ...acc, ...item }), {}),
 } satisfies ChartConfig;
 
-export const BierChart = ({ bier, data }: { bier: "bier" | "rosé bier", data: ChartDataProps }) => {
+export const BierChart = ({ bier, data }: { bier: "bier" | "rosé bier", data: ChartDataProps | undefined }) => {
+    if (!data) {
+        return null;
+    };
+
     const bierData = data.orderedBeers
         .map((item) => ({ tafel: item[0], value: item[1], fill: chartConfig["bier"].color }))
     const roseBierData = data.orderedRoseBeers
@@ -62,7 +66,7 @@ export const BierChart = ({ bier, data }: { bier: "bier" | "rosé bier", data: C
                                     dataKey="tafel"
                                     position="insideLeft"
                                     offset={30}
-                                    className="fill-foreground"
+                                    className="fill-white"
                                     fontSize={"1rem"}
                                     width={100}
                                     formatter={(value: keyof typeof chartConfig) =>

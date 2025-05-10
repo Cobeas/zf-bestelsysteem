@@ -20,7 +20,10 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export const OrderGraph = ({ data }: { data: ChartDataProps }) => {
+export const OrderGraph = ({ data }: { data: ChartDataProps | undefined }) => {
+    if (!data) {
+        return null;
+    };
 
     const pieData = Array.from(Object.entries(data.orderCounts)
         .map(([key, value]) => ({ status: key, value, fill: chartConfig[key as keyof typeof chartConfig]?.color })))
@@ -44,7 +47,7 @@ export const OrderGraph = ({ data }: { data: ChartDataProps }) => {
                         >
                             <LabelList
                                 dataKey="status"
-                                className="fill-foreground"
+                                className="fill-white"
                                 stroke="none"
                                 fontSize={"1rem"}
                                 formatter={(value: keyof typeof chartConfig) =>

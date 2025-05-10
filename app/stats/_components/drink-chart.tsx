@@ -17,7 +17,11 @@ const colorPalette = [
     'var(--chart-5)',
 ];
 
-export const DrinkChart = ({ data }: { data: ChartDataProps }) => {
+export const DrinkChart = ({ data }: { data: ChartDataProps | undefined }) => {
+    if (!data) {
+        return null;
+    };
+
     const drinks = data.orderedDrinks
         .map((item, index) => ({
             name: item.name,
@@ -70,7 +74,7 @@ export const DrinkChart = ({ data }: { data: ChartDataProps }) => {
                             <LabelList
                                 position="center"
                                 offset={0}
-                                className="fill-foreground"
+                                className="fill-white"
                                 fontSize={"1rem"}
                                 dataKey={"name"}
                                 angle={-45}
